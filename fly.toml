@@ -1,0 +1,42 @@
+# fly.toml app configuration file generated for caddy-proxy-long-sun-9685 on 2026-02-11T10:45:05-08:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'caddy-proxy-long-sun-9685'
+primary_region = 'lax'
+
+[build]
+
+[env]
+  APP_URL = "https://app.pagequik.com"
+  LETSENCRYPT_EMAIL = "noreply@pagequik.com"
+
+# HTTP service (port 80) - redirects to HTTPS
+[[services]]
+  internal_port = 80
+  protocol = "tcp"
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [[services.ports]]
+    port = 80
+    handlers = []
+
+# HTTPS service (port 443) - main service
+[[services]]
+  internal_port = 443
+  protocol = "tcp"
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [[services.ports]]
+    port = 443
+    handlers = []
+
+[[vm]]
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 1

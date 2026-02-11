@@ -32,17 +32,11 @@
 
 	# Reverse proxy to main PageQuik app
 	reverse_proxy {$APP_URL:https://app.pagequik.com} {
-		# Forward the original host header
-		header_up Host {host}
-		header_up X-Real-IP {remote_host}
-		header_up X-Forwarded-For {remote_host}
-		header_up X-Forwarded-Proto {scheme}
+		# Explicitly set Host to backend domain to pass Cloudflare
+		header_up Host app.pagequik.com
+		# Keep original domain in X-Forwarded-Host for the app
 		header_up X-Forwarded-Host {host}
-
-		# Health check (optional)
-		health_uri /api/health
-		health_interval 30s
-		health_timeout 5s
+		header_up X-Real-IP {remote_host}
 	}
 
 	# Custom error handling
