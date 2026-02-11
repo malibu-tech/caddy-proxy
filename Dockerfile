@@ -10,8 +10,6 @@ EXPOSE 80 443
 # Run as root for Render compatibility
 USER root
 
-# Ensure caddy binary is executable
-RUN chmod +x /usr/bin/caddy
-
-# Start Caddy with our configuration (shell form for Render compatibility)
-CMD caddy run --config /etc/caddy/Caddyfile --adapter caddyfile
+# Use ENTRYPOINT instead of CMD for better Render compatibility
+ENTRYPOINT ["/usr/bin/caddy"]
+CMD ["run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
