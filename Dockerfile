@@ -1,15 +1,5 @@
-# Use official Caddy image with builder
-FROM caddy:2.7-builder AS builder
-
-# Build Caddy with required modules
-RUN xcaddy build \
-    --with github.com/caddyserver/replace-response
-
-# Final lightweight image
+# Use official Caddy image (includes all standard modules)
 FROM caddy:2.7-alpine
-
-# Copy the built Caddy binary
-COPY --from=builder /usr/bin/caddy /usr/bin/caddy
 
 # Copy Caddyfile
 COPY Caddyfile /etc/caddy/Caddyfile
