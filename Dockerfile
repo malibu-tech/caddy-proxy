@@ -7,11 +7,9 @@ COPY Caddyfile /etc/caddy/Caddyfile
 # Expose HTTP and HTTPS ports
 EXPOSE 80 443
 
-# The official Caddy image already:
-# - Creates /data/caddy directory
-# - Runs as non-root caddy user
-# - Has proper permissions set
-# - Includes health checks
+# Run as root for Render compatibility
+# Render will map this to UID 1000 internally
+USER root
 
 # Start Caddy with our configuration
 CMD ["caddy", "run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
