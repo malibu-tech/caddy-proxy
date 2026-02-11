@@ -8,8 +8,10 @@ COPY Caddyfile /etc/caddy/Caddyfile
 EXPOSE 80 443
 
 # Run as root for Render compatibility
-# Render will map this to UID 1000 internally
 USER root
 
-# Start Caddy with our configuration
-CMD ["caddy", "run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
+# Ensure caddy binary is executable
+RUN chmod +x /usr/bin/caddy
+
+# Start Caddy with our configuration (shell form for Render compatibility)
+CMD caddy run --config /etc/caddy/Caddyfile --adapter caddyfile
