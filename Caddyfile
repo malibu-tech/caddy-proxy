@@ -1,0 +1,66 @@
+{
+	# Global options
+	admin off
+
+	# On-demand TLS configuration
+	on_demand_tls {
+		# Ask our API if this domain is allowed before issuing certificate
+		ask https://app.pagequik.com/api/caddy/check-domain
+		# Ask at most once every 1 minute per domain
+		interval 1m
+		# Burst of 5 simultaneous checks allowed
+		burst 5
+	}
+
+	# Email for Let's Encrypt notifications (optional but recommended)
+	email {$LETSENCRYPT_EMAIL:noreply@pagequik.com}
+}
+
+# Catch-all server block for HTTPS
+:443 {
+	# Enable on-demand TLS for any domain
+	tls {
+		on_demand
+	}
+
+	# Log requests (helpful for debugging)
+	log {
+		output stdout
+		format json
+		level INFO
+	}
+
+	# Reverse proxy to main PageQuik app
+	reverse_proxy {$APP_URL:https://app.pagequik.com} {
+		# Forward the original host header
+		header_up Host {host}
+		header_up X-Real-IP {remote_host}
+		header_up X-Forwarded-For {remote_host}
+		header_up X-Forwarded-Proto {scheme}
+		header_up X-Forwarded-Host {host}
+
+		# Health check (optional)
+		health_uri /api/health
+		health_interval 30s
+		health_timeout 5s
+	}
+
+	# Custom error handling
+	handle_errors {
+		@404 {
+			expression {http.error.status_code} == 404
+		}
+		@502-503 {
+			expression {http.error.status_code} >= 502 && {http.error.status_code} <= 503
+		}
+
+		respond @404 "Site not found" 404
+		respond @502-503 "Service temporarily unavailable" 503
+	}
+}
+
+# HTTP redirect to HTTPS
+:80 {
+	# Redirect all HTTP to HTTPS
+	redir https://{host}{uri} permanent
+}
